@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {notification, Button} from 'antd';
 
-import EditableDataTable from './EditableDataTable';
+import EditableFieldTable from './EditableFieldTable';
 import {transformColumnsFromGenedock} from './Utils/TableUtils';
 
 class Demo02 extends Component {
@@ -19,11 +19,7 @@ class Demo02 extends Component {
   }
 
   render() {
-    const dataSource = [
-      {IT01: 'IT01', IT02: 'IT02', IT03: 'IT03', IT04: 'IT04', IT05: 'IT05'},
-      {IT01: 'IT02', IT02: 'IT02', IT03: 'IT03', IT04: 'IT04', IT05: 'IT05'},
-      {IT01: 'IT03', IT02: 'IT02', IT03: 'IT03', IT04: 'IT04', IT05: 'IT05'}
-    ];
+    const dataSource = {IT01: 'IT01', IT02: 'IT02', IT03: 'IT03', IT04: 'IT04', IT05: 'IT05'};
 
     const columns = [{
       id: 'IT01',
@@ -50,18 +46,24 @@ class Demo02 extends Component {
       name: 'Units',
       type: 'datetime'
     }];
-
+    /**
+      [
+        {name: 'IT01', value: 'IT01'},
+        {name: 'IT02', value: 'IT02'},
+        {name: 'IT03', value: 'IT03'}
+      ]
+    */
     return (
       <div style={{padding: '20px 100px 20px 100px'}}>
         <Button
           onClick={this.handleTableData.bind(this)}
           type="primary">获取表格所有数据</Button>
         <h1>Editable Table Demo </h1>
-        <EditableDataTable
+        <EditableFieldTable
           ref={(instance) => {
             this.tableInstance = instance;
           }}
-          rowKey="IT01"
+          rowKey="name"
           clickRowToEdit
           pagination={false}
           data={dataSource}

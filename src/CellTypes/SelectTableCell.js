@@ -30,13 +30,21 @@ class SelectTableCell extends Component {
           onChange={this.handleChange.bind(this)}
           defaultValue={value} >
           {
-          config.options.map(item =>
-            <Option
-              key={item}
-              value={item}>
-              {item}
-            </Option>
-          )
+            Array.isArray(config.options) ?
+            config.options.map(item =>
+              <Option
+                key={item.name}
+                value={item.value}>
+                {item.value}
+              </Option>
+            ) :
+            config.options.map(item =>
+              <Option
+                key={item}
+                value={item}>
+                {item}
+              </Option>
+            )
           }
         </Select>
       </div>

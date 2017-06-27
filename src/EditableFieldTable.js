@@ -6,17 +6,20 @@ import SelectTableCell from './CellTypes/SelectTableCell';
 import NumberTableCell from './CellTypes/NumberTableCell';
 import RateTableCell from './CellTypes/RateTableCell';
 import SliderTableCell from './CellTypes/SliderTableCell';
+import {transformTableDataFromObject} from './Utils/TableUtils';
 
-class AntEditableTable extends Component {
+class EditableFieldTable extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      data: props.data,
-      editIndex: -1,
-      editable: false,
       status: null,
-      columns: props.columns
+      editIndex: -1,
+      data: props.data,
+      tableData: transformTableDataFromObject(props.columns, props.data),
+      editable: false,
+      columns: props.columns,
+      tableColumns: this.generateTableColumns()
     };
   }
 
@@ -26,17 +29,22 @@ class AntEditableTable extends Component {
   }
 
   handleChange(key, index, value) {
-    const {data} = this.state;
+    const {data, tableData} = this.state;
     const {onRowSave} = this.props;
-    data[index][key] = value;
+
+    data[tableData[index].name] = value;
+    tableData[index].value = value;
+
     if (onRowSave) onRowSave(data);
-    this.setState({data, editable: false});
+
+    this.setState({data, tableData, editable: false});
   }
 
   handleSaveAll() {
     const {data} = this.state;
     const {onAllSave} = this.props;
-    onAllSave(data);
+
+    if (onAllSave) onAllSave(data);
   }
 
   edit(index) {
@@ -57,17 +65,39 @@ class AntEditableTable extends Component {
 
   render() {
     const props = {...this.props};
-    const {columns} = this.props;
-    const {data} = this.state;
-
+    const {tableData, tableColumns} = this.state;
+    console.info(tableData);
     props.onRowClick = this.wrapperRowClick();
 
     return (
       <Table
         {...props}
-        dataSource={data}
-        columns={this.wrapperColumnsRender(columns)} />
+        dataSource={tableData}
+        columns={this.wrapperColumnsRender(tableColumns)} />
     );
+  }
+
+
+  generateTableColumns() {
+    const tableColumns = [];
+    tableColumns.push({
+      key: 'name',
+      title: '属性名',
+      width: '30%',
+      dataIndex: 'name'
+    });
+    tableColumns.push({
+      key: 'value',
+      title: '属性值',
+      width: '50%',
+      dataIndex: 'value'
+    });
+    tableColumns.push({
+      title: '操作',
+      width: '20%',
+      operation: true
+    });
+    return tableColumns;
   }
 
   wrapperRowClick() {
@@ -87,8 +117,8 @@ class AntEditableTable extends Component {
         item.render = (text, record, index) => this.operationRender(this.state.data, text, record, index);
         return item;
       }
-      if (!item.render && item.editable) {
-        item.render = (text, record, index) => this.renderColumns(this.state.data, index, item.dataIndex, text, item.editable || {});
+      if (!item.render) {
+        item.render = (text, record, index) => this.renderColumns(this.state.data, index, item.dataIndex, text, record.editable || {});
       }
       return item;
     });
@@ -97,6 +127,7 @@ class AntEditableTable extends Component {
 
   renderColumns(data, index, key, text, config) {
     const {status, editIndex} = this.state;
+    if (key === 'name') return <div>{text}</div>;
     if (editIndex !== index) return <div>{text}</div>;
     if (!this.state.editable) return <div>{text}</div>;
     switch (config.type) {
@@ -190,4 +221,4 @@ class AntEditableTable extends Component {
 
 }
 
-export default AntEditableTable;
+export default EditableFieldTable;
